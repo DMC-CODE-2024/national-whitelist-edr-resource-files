@@ -1,5 +1,5 @@
 #!/bin/bash
-conffile=/u01/eirsapp/configuration/configuration.properties
+conf_file=/u01/eirsapp/configuration/configuration.properties
 typeset -A config # init array
 
 while read line
@@ -9,400 +9,52 @@ do
         varname=$(echo "$line" | cut -d '=' -f 1)
         config[$varname]=$(echo "$line" | cut -d '=' -f 2-)
     fi
-done < $conffile
-conn1="mysql -h${config[dbIp]} -P${config[dbPort]} -u${config[dbUsername]} -p${config[dbPassword]}"
-conn2="mysql -h${config[dbIp]} -P${config[dbPort]} -u${config[dbUsername]} -p${config[dbPassword]} ${config[auddbName]}"
-conn="mysql -h${config[dbIp]} -P${config[dbPort]} -u${config[dbUsername]} -p${config[dbPassword]} ${config[appdbName]}"
+done < $conf_file
 
-echo "creating app database."
-${conn1} -e "CREATE DATABASE IF NOT EXISTS app;"
-echo " app database successfully created!"
-echo ${conn}
-${conn}<<EOFMYSQL
-CREATE TABLE IF NOT EXISTS active_foreign_imei_with_different_msisdn (
-  id                       INT NOT NULL AUTO_INCREMENT,
-  created_on               TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  modified_on              TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  tac                      VARCHAR(8),
-  msisdn                   VARCHAR(20),
-  failed_rule_id           INT DEFAULT 0,
-  failed_rule_name         VARCHAR(50),
-  imsi                     VARCHAR(20),
-  mobile_operator          VARCHAR(20),
-  create_filename          VARCHAR(100),
-  update_filename          VARCHAR(100),
-  updated_on               TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  system_type              VARCHAR(50),
-  action                   VARCHAR(50),
-  period                   VARCHAR(50),
-  failed_rule_date         TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  mobile_operator_id       INT DEFAULT 0,
-  tax_paid                 INT DEFAULT 0,
-  feature_name             VARCHAR(50),
-  record_time              TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  actual_imei              VARCHAR(20),
-  record_type              VARCHAR(50),
-  imei                     VARCHAR(20),
-  raw_cdr_file_name        VARCHAR(100),
-  imei_arrival_time        TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  source                   VARCHAR(20),
-  update_raw_cdr_file_name VARCHAR(100),
-  update_imei_arrival_time TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  update_source            VARCHAR(20),
-  server_origin            VARCHAR(25),
-  actual_operator          VARCHAR(20) DEFAULT NULL,
-  test_imei                VARCHAR(20) DEFAULT NULL,
-  is_used                  VARCHAR(20) DEFAULT NULL,
-  PRIMARY KEY (id)
-);
-CREATE TABLE IF NOT EXISTS active_imei_with_different_msisdn (
-  id                       INT NOT NULL AUTO_INCREMENT,
-  created_on               TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  modified_on              TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  tac                      VARCHAR(8),
-  msisdn                   VARCHAR(20),
-  failed_rule_id           INT DEFAULT 0,
-  failed_rule_name         VARCHAR(50),
-  imsi                     VARCHAR(20),
-  mobile_operator          VARCHAR(20),
-  create_filename          VARCHAR(100),
-  update_filename          VARCHAR(100),
-  updated_on               TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  system_type              VARCHAR(50),
-  action                   VARCHAR(50),
-  period                   VARCHAR(50),
-  failed_rule_date         TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  mobile_operator_id       INT DEFAULT 0,
-  tax_paid                 INT DEFAULT 0,
-  feature_name             VARCHAR(50),
-  record_time              TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  actual_imei              VARCHAR(20),
-  record_type              VARCHAR(50),
-  imei                     VARCHAR(20),
-  raw_cdr_file_name        VARCHAR(100),
-  imei_arrival_time        TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  source                   VARCHAR(20),
-  update_raw_cdr_file_name VARCHAR(100),
-  update_imei_arrival_time TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  update_source            VARCHAR(20),
-  server_origin            VARCHAR(255),
-  actual_operator          VARCHAR(20) DEFAULT NULL,
-  test_imei                VARCHAR(20) DEFAULT NULL,
-  is_used                  VARCHAR(20) DEFAULT NULL,
-  PRIMARY KEY (id)
-);
-CREATE TABLE IF NOT EXISTS active_unique_foreign_imei (
-  id                       INT NOT NULL AUTO_INCREMENT,
-  created_on               TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  modified_on              TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  foregin_value            VARCHAR(50),
-  tac                      VARCHAR(8),
-  msisdn                   VARCHAR(20),
-  failed_rule_id           INT DEFAULT 0,
-  failed_rule_name         VARCHAR(50),
-  imsi                     VARCHAR(20),
-  mobile_operator          VARCHAR(20),
-  create_filename          VARCHAR(100),
-  update_filename          VARCHAR(100),
-  updated_on               TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  system_type              VARCHAR(50),
-  action                   VARCHAR(50),
-  period                   VARCHAR(50),
-  failed_rule_date         TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  mobile_operator_id       INT DEFAULT 0,
-  tax_paid                 INT DEFAULT 0,
-  feature_name             VARCHAR(50),
-  record_time              TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  actual_imei              VARCHAR(20),
-  record_type              VARCHAR(50),
-  imei                     VARCHAR(20),
-  raw_cdr_file_name        VARCHAR(100),
-  imei_arrival_time        TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  source                   VARCHAR(20),
-  update_raw_cdr_file_name VARCHAR(100),
-  update_imei_arrival_time TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  update_source            VARCHAR(20),
-  server_origin            VARCHAR(25),
-  actual_operator          VARCHAR(20) DEFAULT NULL,
-  test_imei                VARCHAR(20) DEFAULT NULL,
-  is_used                  VARCHAR(20) DEFAULT NULL,
-  foreign_rule              VARCHAR(50)DEFAULT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY unique_imei (imei)
-);
-CREATE TABLE IF NOT EXISTS active_unique_imei (
-  id                       INT NOT NULL AUTO_INCREMENT,
-  created_on               TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  modified_on              TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  foregin_value            VARCHAR(50),
-  tac                      VARCHAR(8),
-  msisdn                   VARCHAR(20),
-  failed_rule_id           INT DEFAULT 0,
-  failed_rule_name         VARCHAR(50),
-  imsi                     VARCHAR(20),
-  mobile_operator          VARCHAR(20),
-  create_filename          VARCHAR(100),
-  update_filename          VARCHAR(100),
-  updated_on               TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  system_type              VARCHAR(50),
-  action                   VARCHAR(50),
-  period                   VARCHAR(50),
-  failed_rule_date         TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  mobile_operator_id       INT DEFAULT 0,
-  tax_paid                 INT DEFAULT 0,
-  feature_name             VARCHAR(50),
-  record_time              TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  actual_imei              VARCHAR(20),
-  record_type              VARCHAR(50),
-  imei                     VARCHAR(20),
-  raw_cdr_file_name        VARCHAR(100),
-  imei_arrival_time        TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  source                   VARCHAR(20),
-  update_raw_cdr_file_name VARCHAR(100),
-  update_imei_arrival_time TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  update_source            VARCHAR(20),
-  server_origin            VARCHAR(255),
-  actual_operator          VARCHAR(20) DEFAULT NULL,
-  test_imei                VARCHAR(20) DEFAULT NULL,
-  is_used                  VARCHAR(20) DEFAULT NULL,
-  foreign_rule              VARCHAR(50) DEFAULT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY unique_imei (imei)
-);
-CREATE TABLE IF NOT EXISTS national_whitelist (
-  national_whitelist_id             INT NOT NULL AUTO_INCREMENT,
-  created_on                        DATETIME,
-  modified_on                       DATETIME,
-  foreign_rule                      VARCHAR(255),
-  mobile_operator                   VARCHAR(255),
-  period                            VARCHAR(255),
-  tax_paid                          VARCHAR(255),
-  created_filename                  VARCHAR(255),
-  updated_filename                  VARCHAR(255),
-  updated_on                        DATETIME,
-  system_type                       VARCHAR(255),
-  failed_rule_id                    INT,
-  failed_rule_name                  VARCHAR(255),
-  validity_flag                     TINYINT(1),
-  tac                               VARCHAR(255),
-  action                            VARCHAR(255),
-  failed_rule_date                  DATETIME,
-  feature_name                      VARCHAR(255),
-  record_time                       DATETIME,
-  actual_imei                       VARCHAR(255),
-  record_type                       VARCHAR(255),
-  imei                              VARCHAR(255),
-  raw_cdr_file_name                 VARCHAR(255),
-  imei_arrival_time                 DATETIME,
-  source                            VARCHAR(255),
-  update_raw_cdr_file_name          VARCHAR(255),
-  update_imei_arrival_time          DATETIME,
-  update_source                     VARCHAR(255),
-  server_origin                     VARCHAR(255),
-  list_type                         VARCHAR(255),
-  type_of_entry                     VARCHAR(255),
-  national_white_list_created_date  DATETIME,
-  reason                            VARCHAR(255),
-  imsi                              VARCHAR(255),
-  msisdn                            VARCHAR(255),
-  created_on_date                   DATE,
-  device_type                       VARCHAR(255),
-  actual_operator                   VARCHAR(255),
-  is_test_imei                      VARCHAR(255),
-  is_used_device_imei               VARCHAR(255),
-  reason_for_invalid_imei           VARCHAR(255),
-  PRIMARY KEY (national_whitelist_id),
-  UNIQUE KEY unique_imei (imei)
-);
-CREATE TABLE IF NOT EXISTS exception_list (
-  exception_list_id           INT NOT NULL AUTO_INCREMENT,
-  created_on                  DATETIME,
-  modified_on                 DATETIME,
-  tac                         VARCHAR(255),
-  msisdn                      VARCHAR(255),
-  failed_rule_id              INT,
-  failed_rule_name            VARCHAR(255),
-  imsi                        VARCHAR(255),
-  mobile_operator             VARCHAR(255),
-  created_filename            VARCHAR(255),
-  updated_filename            VARCHAR(255),
-  updated_on                  DATETIME,
-  system_type                 VARCHAR(255),
-  action                      VARCHAR(255),
-  period                      VARCHAR(255),
-  failed_rule_date            DATETIME,
-  tax_paid                    INT,
-  feature_name                VARCHAR(255),
-  record_time                 DATETIME,
-  actual_imei                 VARCHAR(255),
-  record_type                 VARCHAR(255),
-  imei                        VARCHAR(255),
-  raw_cdr_file_name           VARCHAR(255),
-  imei_arrival_time           DATETIME,
-  source                      VARCHAR(255),
-  update_raw_cdr_file_name    VARCHAR(255),
-  update_imei_arrival_time    DATETIME,
-  update_source               VARCHAR(255),
-  server_origin               VARCHAR(255),
-  reason_for_invalid_imei     VARCHAR(255),
-  foreign_value                ARCHAR(255),
-  validity_flag               TINYINT(1),
-  device_type                 VARCHAR(255),
-  exception_list_created_date DATETIME,
-  actual_operator             VARCHAR(255),
-  is_test_imei                VARCHAR(255),
-  list_type                   VARCHAR(255),
-  is_used_device_imei         VARCHAR(255),
-  foreign_rule varchar(255),
-  PRIMARY KEY (exception_list_id),
-  UNIQUE KEY unique_imei_msisdn (imei, msisdn)
-);
-CREATE TABLE IF NOT EXISTS foreign_whitelist (
-  foreign_whitelist_id              INT NOT NULL AUTO_INCREMENT,
-  created_on                        DATETIME,
-  modified_on                       DATETIME,
-  foreign_rule                      VARCHAR(255),
-  mobile_operator                   VARCHAR(255),
-  period                            VARCHAR(255),
-  tax_paid                          VARCHAR(255),
-  created_filename                  VARCHAR(255),
-  updated_filename                  VARCHAR(255),
-  updated_on                        DATETIME,
-  system_type                       VARCHAR(255),
-  failed_rule_id                    INT,
-  failed_rule_name                  VARCHAR(255),
-  validity_flag                     TINYINT(1),
-  tac                               VARCHAR(255),
-  action                            VARCHAR(255),
-  failed_rule_date                  DATETIME,
-  feature_name                      VARCHAR(255),
-  record_time                       DATETIME,
-  actual_imei                       VARCHAR(255),
-  record_type                       VARCHAR(255),
-  imei                              VARCHAR(255),
-  raw_cdr_file_name                 VARCHAR(255),
-  imei_arrival_time                 DATETIME,
-  source                            VARCHAR(255),
-  update_raw_cdr_file_name          VARCHAR(255),
-  update_imei_arrival_time          DATETIME,
-  update_source                     VARCHAR(255),
-  server_origin                     VARCHAR(255),
-  list_type                         VARCHAR(255),
-  type_of_entry                     VARCHAR(255),
-  national_white_list_created_date  DATETIME,
-  foreign_white_list_created_date  DATETIME,
-  reason_for_invalid_imei           VARCHAR(255),
-  reason                            VARCHAR(255),
-  imsi                              VARCHAR(255),
-  msisdn                            VARCHAR(255),
-  created_on_date                   DATE,
-  device_type                       VARCHAR(255),
-  actual_operator                   VARCHAR(255),
-  is_test_imei                      VARCHAR(255),
-  is_used_device_imei               VARCHAR(255),
-  PRIMARY KEY (foreign_whitelist_id),
-  UNIQUE KEY unique_imei (imei)
-);
-CREATE TABLE IF NOT EXISTS foreign_exception_list (
-  foreign_exception_list_id   INT NOT NULL AUTO_INCREMENT,
-  created_on                  DATETIME,
-  modified_on                 DATETIME,
-  tac                         VARCHAR(255),
-  msisdn                      VARCHAR(255),
-  failed_rule_id              INT,
-  failed_rule_name            VARCHAR(255),
-  imsi                        VARCHAR(255),
-  mobile_operator             VARCHAR(255),
-  created_filename            VARCHAR(255),
-  updated_filename            VARCHAR(255),
-  updated_on                  DATETIME,
-  system_type                 VARCHAR(255),
-  action                      VARCHAR(255),
-  period                      VARCHAR(255),
-  failed_rule_date            DATETIME,
-  tax_paid                    INT,
-  feature_name                VARCHAR(255),
-  record_time                 DATETIME,
-  actual_imei                 VARCHAR(255),
-  record_type                 VARCHAR(255),
-  imei                        VARCHAR(255),
-  raw_cdr_file_name           VARCHAR(255),
-  imei_arrival_time           DATETIME,
-  source                      VARCHAR(255),
-  update_raw_cdr_file_name    VARCHAR(255),
-  update_imei_arrival_time    DATETIME,
-  update_source               VARCHAR(255),
-  server_origin               VARCHAR(255),
-  reason_for_invalid_imei     VARCHAR(255),
-  foreign_value                ARCHAR(255),
-  validity_flag               TINYINT(1),
-  exception_list_created_date DATETIME,
-  device_type                 VARCHAR(255),
-  actual_operator             VARCHAR(255),
-  is_test_imei                VARCHAR(255),
-  list_type                   VARCHAR(255),
-  is_used_device_imei         VARCHAR(255),
-  foreign_rule varchar(255),
-  PRIMARY KEY (foreign_exception_list_id),
-  UNIQUE KEY unique_combination (imei, msisdn)
-);
-CREATE TABLE sys_param (
-  created_on   TIMESTAMP,
-  description  VARCHAR(255),
-  modified_on  TIMESTAMP,
-  tag          VARCHAR(255),
-  type         INT,
-  value        VARCHAR(255),
-  active       INT,
-  feature_name VARCHAR(255),
-  remark       VARCHAR(255),
-  user_type    VARCHAR(255),
-  modified_by  VARCHAR(255),
-  id           INT NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (id)
-);
+dbPassword=$(java -jar  $pass_dypt spring.datasource.password)
 
-EOFMYSQL
+conn="mysql -h${config[dbIp]} -P${config[dbPort]} -u${config[dbUsername]} -p${dbPassword} ${config[appdbName]}"
 
-echo "creating aud database."
-${conn} -e "CREATE DATABASE if not exists  aud;"
-echo " aud database successfully created!"
+`${conn} <<EOFMYSQL
+INSERT IGNORE INTO cfg_feature_alert (alert_id,DESCRIPTION,feature) VALUES('aler1209','DB connection failed while getting DB configuration value','national_whitelist');
+INSERT IGNORE INTO cfg_feature_alert (alert_id,DESCRIPTION,feature) VALUES('alert013','DB Issue <ERROR>','national_whitelist');
+INSERT IGNORE INTO cfg_feature_alert (alert_id,DESCRIPTION,feature) VALUES('alert016','Error in national_whitelist <ERROR>','national_whitelist');
+INSERT IGNORE INTO cfg_feature_alert (alert_id,DESCRIPTION,feature) VALUES('alert017',"In Post Amnesty period GDCE flag can't be off. Please check.",'national_whitelist');
 
-${conn2} <<EOFMYSQL
-CREATE TABLE IF NOT EXISTS modules_audit_trail (
-  id             INT NOT NULL AUTO_INCREMENT,
-  created_on     TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  modified_on    TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-  execution_time INT,
-  status_code    INT,
-  status         VARCHAR(10),
-  error_message  VARCHAR(255),
-  module_name    VARCHAR(50),
-  feature_name   VARCHAR(50),
-  action         VARCHAR(20),
-  count          INT,
-  info           VARCHAR(255),
-  server_name    VARCHAR(30),
-  PRIMARY KEY (id)
-);
+INSERT IGNORE INTO feature_rule(feature,grace_action,NAME,post_grace_action,rule_order,user_type,failed_rule_action_grace,failed_rule_action_post_grace,output,rule_message,modified_by) VALUES('national_whitelist','','CUSTOM_GDCE','',2,'default','','','','Rule message for CUSTOM_GDCE','system');
+INSERT IGNORE INTO feature_rule(feature,grace_action,NAME,post_grace_action,rule_order,user_type,failed_rule_action_grace,failed_rule_action_post_grace,output,rule_message,modified_by) VALUES('national_whitelist','','LOCAL_MANUFACTURER','',3,'default','','','','Rule message for LOCAL_MANUFACTURER','system');
+INSERT IGNORE INTO feature_rule(feature,grace_action,NAME,post_grace_action,rule_order,user_type,failed_rule_action_grace,failed_rule_action_post_grace,output,rule_message,modified_by) VALUES('national_whitelist','','IMEI_ALPHANUMERIC','',6,'default','','','','Rule message for IMEI_ALPHANUMERIC','system');
+INSERT IGNORE INTO feature_rule(feature,grace_action,NAME,post_grace_action,rule_order,user_type,failed_rule_action_grace,failed_rule_action_post_grace,output,rule_message,modified_by) VALUES('national_whitelist','','IMEI_LENGTH_NATIONAL_WHITELIST','',7,'default','','','','Rule message for IMEI_LENGTH_NATIONAL_WHITELIST','system');
+INSERT IGNORE INTO feature_rule(feature,grace_action,NAME,post_grace_action,rule_order,user_type,failed_rule_action_grace,failed_rule_action_post_grace,output,rule_message,modified_by) VALUES('national_whitelist','','IMEI_NULL','',5,'default','','','','Rule message for IMEI_NULL','system');
+INSERT IGNORE INTO feature_rule(feature,grace_action,NAME,post_grace_action,rule_order,user_type,failed_rule_action_grace,failed_rule_action_post_grace,output,rule_message,modified_by) VALUES('national_whitelist','','TYPE_APPROVED','',1,'default','','','','Rule message for TYPE_APPROVED','system');
+INSERT IGNORE INTO feature_rule(feature,grace_action,NAME,post_grace_action,rule_order,user_type,failed_rule_action_grace,failed_rule_action_post_grace,output,rule_message,modified_by) VALUES('national_whitelist','','VALID_TAC','',4,'default','','','','Rule message for VALID_TAC','system');
 
-INSERT INTO rule (description, modified_on, name, output, state, modified_by)
-VALUES
-('This Rule checks if imei length is valid', '2023-06-29 14:26:44', 'IMEI_LENGTH_NATIONAL_WHITELIST', 'Yes', 'Enabled', 'system'),
-('The rule checks if the IMEI is blank or all zeros', '2022-11-17 11:25:24', 'IMEI_NULL', 'No', 'Enabled', NULL),
-('This Rule checks if imei is test imei', '2023-06-29 14:26:44', 'IMEI_TEST', 'Yes', 'Enabled', 'system'),
-('This Rule checks if tac is valid', '2023-06-30 11:04:09', 'VALID_TAC', 'Yes', 'Enabled', 'system');
+INSERT IGNORE INTO rule (DESCRIPTION,NAME,output,state,modified_by) VALUES('Description for CUSTOM_GDCE','CUSTOM_GDCE','','Enabled','Admin');
+INSERT IGNORE INTO rule (DESCRIPTION,NAME,output,state,modified_by) VALUES('Description for LOCAL_MANUFACTURER','LOCAL_MANUFACTURER','','Enabled','Admin');
+INSERT IGNORE INTO rule (DESCRIPTION,NAME,output,state,modified_by) VALUES('Description for IMEI_ALPHANUMERIC','IMEI_ALPHANUMERIC','','Enabled','Admin');
+INSERT IGNORE INTO rule (DESCRIPTION,NAME,output,state,modified_by) VALUES('Description for IMEI_LENGTH_NATIONAL_WHITELIST','IMEI_LENGTH_NATIONAL_WHITELIST','','Enabled','Admin');
+INSERT IGNORE INTO rule (DESCRIPTION,NAME,output,state,modified_by) VALUES('Description for IMEI_NULL','IMEI_NULL','','Enabled','Admin');
+INSERT IGNORE INTO rule (DESCRIPTION,NAME,output,state,modified_by) VALUES('Description for TYPE_APPROVED','TYPE_APPROVED','','Enabled','Admin');
+INSERT IGNORE INTO rule (DESCRIPTION,NAME,output,state,modified_by) VALUES('Description for VALID_TAC','VALID_TAC','','Enabled','Admin');
+
+INSERT IGNORE INTO app.sys_param (DESCRIPTION,tag,TYPE,VALUE,ACTIVE,feature_name,remark,user_type,modified_by) VALUES ('NWLOnlineAPICheck for source NWL','NWLOnlineAPICheck',0,'false',1,'NationalWhitelist','','','');
+INSERT IGNORE INTO app.sys_param (description,tag,type,value,active,feature_name,remark,user_type,modified_by) VALUES ('Date on which the Grace Period will end in CEIR System.','GRACE_PERIOD_END_DATE',1,'2024-09-01',0,'EDR','','system','system');
+INSERT IGNORE INTO app.sys_param (DESCRIPTION,tag,TYPE,VALUE,ACTIVE,feature_name,remark,user_type,modified_by) VALUES ('latest date when edr national whitelist process for unique imei ran','app_edr_nw_unique_imei_last_run_time',0,'',1,'NationalWhitelist_EDR','','system','system');
+INSERT IGNORE INTO app.sys_param (DESCRIPTION,tag,TYPE,VALUE,ACTIVE,feature_name,remark,user_type,modified_by) VALUES ('latest date when edr national whitelist process for imei with different msisdn ran','app_edr_nw_unique_imei_diff_msisdn_last_run_time',0,'',1,'NationalWhitelist_EDR','','system','system');
+INSERT IGNORE INTO app.sys_param (DESCRIPTION,tag,TYPE,VALUE,ACTIVE,feature_name,remark,user_type,modified_by) VALUES ('latest date when edr foreign whitelist process for imei with different msisdn ran','app_edr_nw_foreign_unique_imei_diff_msisdn_last_run_time',0,'',1,'NationalWhitelist_EDR','','system','system');
+INSERT IGNORE INTO app.sys_param (DESCRIPTION,tag,TYPE,VALUE,ACTIVE,feature_name,remark,user_type,modified_by) VALUES ('latest date when edr national whitelist process for unique imei ran','app_edr_nw_unique_foreign_imei_last_run_time',0,'',1,'NationalWhitelist_EDR','','system','system');
+
+INSERT IGNORE INTO feature_rule(feature,grace_action,NAME,post_grace_action,rule_order,user_type,failed_rule_action_grace,failed_rule_action_post_grace,output,rule_message,modified_by) VALUES('foreign_whitelist','','CUSTOM_GDCE','',2,'default','','','','Rule message for CUSTOM_GDCE','system');
+INSERT IGNORE INTO feature_rule(feature,grace_action,NAME,post_grace_action,rule_order,user_type,failed_rule_action_grace,failed_rule_action_post_grace,output,rule_message,modified_by) VALUES('foreign_whitelist','','LOCAL_MANUFACTURER','',3,'default','','','','Rule message for LOCAL_MANUFACTURER','system');
+INSERT IGNORE INTO feature_rule(feature,grace_action,NAME,post_grace_action,rule_order,user_type,failed_rule_action_grace,failed_rule_action_post_grace,output,rule_message,modified_by) VALUES('foreign_whitelist','','IMEI_ALPHANUMERIC','',6,'default','','','','Rule message for IMEI_ALPHANUMERIC','system');
+INSERT IGNORE INTO feature_rule(feature,grace_action,NAME,post_grace_action,rule_order,user_type,failed_rule_action_grace,failed_rule_action_post_grace,output,rule_message,modified_by) VALUES('foreign_whitelist','','IMEI_LENGTH_NATIONAL_WHITELIST','',7,'default','','','','Rule message for IMEI_LENGTH_NATIONAL_WHITELIST','system');
+INSERT IGNORE INTO feature_rule(feature,grace_action,NAME,post_grace_action,rule_order,user_type,failed_rule_action_grace,failed_rule_action_post_grace,output,rule_message,modified_by) VALUES('foreign_whitelist','','IMEI_NULL','',5,'default','','','','Rule message for IMEI_NULL','system');
+INSERT IGNORE INTO feature_rule(feature,grace_action,NAME,post_grace_action,rule_order,user_type,failed_rule_action_grace,failed_rule_action_post_grace,output,rule_message,modified_by) VALUES('foreign_whitelist','','TYPE_APPROVED','',1,'default','','','','Rule message for TYPE_APPROVED','system');
+INSERT IGNORE INTO feature_rule(feature,grace_action,NAME,post_grace_action,rule_order,user_type,failed_rule_action_grace,failed_rule_action_post_grace,output,rule_message,modified_by) VALUES('foreign_whitelist','','VALID_TAC','',4,'default','','','','Rule message for VALID_TAC','system');
 
 
-INSERT INTO feature_rule (feature, grace_action, name, post_grace_action, rule_order, user_type, failed_rule_action_grace, failed_rule_action_post_grace, output, rule_message, modified_by)
-VALUES
-('national_whitelist', 'Reject', 'IMEI_NULL', 'Reject', 1, 'default', 'Rule', 'Rule', 'Yes', NULL, 'system'),
-('national_whitelist', 'Reject', 'IMEI_TEST', 'Reject', 2, 'default', 'Rule', 'Rule', 'Yes', NULL, 'system'),
-('national_whitelist', 'Rule', 'IMEI_LENGTH_NATIONAL_WHITELIST', 'Rule', 3, 'default', 'Reject', 'Reject', 'Yes', NULL, 'system'),
-('national_whitelist', 'Reject', 'VALID_TAC', 'Reject', 0, 'default', 'Rule', 'Rule', 'Yes', NULL, 'system');
-('foreign_whitelist', 'Reject', 'IMEI_NULL', 'Reject', 1, 'default', 'Rule', 'Rule', 'Yes', NULL, 'system'),
-('foreign_whitelist', 'Reject', 'IMEI_TEST', 'Reject', 2, 'default', 'Rule', 'Rule', 'Yes', NULL, 'system'),
-('foreign_whitelist', 'Rule', 'IMEI_LENGTH_NATIONAL_WHITELIST', 'Rule', 3, 'default', 'Reject', 'Reject', 'Yes', NULL, 'system'),
-('foreign_whitelist', 'Reject', 'VALID_TAC', 'Reject', 0, 'default', 'Rule', 'Rule', 'Yes', NULL, 'system');
-EOFMYSQL
-echo "tables creation completed."
+EOFMYSQL`
+
+
+
+echo "********************Thank You DB Process is completed now*****************"
