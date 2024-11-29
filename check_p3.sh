@@ -3,7 +3,7 @@
 set -x
 source $commonConfigurationFilePath
 
-main_module="etl_edr"
+main_module="etl_cdr"
 module_name="etl_module"
 process_name="sql"
 
@@ -66,7 +66,6 @@ for opr in seatel metfone smart cellcard
       echo "No Process Run"
    else  
      echo "Completed"
-    ./start.sh
   fi  
  
 }

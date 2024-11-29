@@ -1,6 +1,6 @@
 #!/bin/bash
 
-module_name="national_whitelist_edr"
+module_name="national_whitelist_cdr"
 
 process=$module_name.jar
 

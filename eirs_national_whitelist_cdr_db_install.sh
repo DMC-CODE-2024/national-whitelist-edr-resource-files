@@ -1,24 +1,16 @@
 #!/bin/bash
-conf_file=/u01/eirsapp/configuration/configuration.properties
-typeset -A config # init array
+. ~/.bash_profile
 
-while read line
-do
-    if echo $line | grep -F = &>/dev/null
-    then
-        varname=$(echo "$line" | cut -d '=' -f 1)
-        config[$varname]=$(echo "$line" | cut -d '=' -f 2-)
-    fi
-done < $conf_file
+source ${commonConfigurationFile} 2>/dev/null
 
-dbPassword=$(java -jar  $pass_dypt spring.datasource.password)
+dbPassword=$(java -jar  ${pass_dypt}/pass_dypt.jar spring.datasource.password)
 
-conn="mysql -h${config[dbIp]} -P${config[dbPort]} -u${config[dbUsername]} -p${dbPassword} ${config[appdbName]}"
+conn="mysql -h${dbIp} -P${dbPort} -u${dbUsername} -p${dbPassword} ${appdbName}"
 
 `${conn} <<EOFMYSQL
-INSERT IGNORE INTO cfg_feature_alert (alert_id,DESCRIPTION,feature) VALUES('aler1209','DB connection failed while getting DB configuration value','national_whitelist');
-INSERT IGNORE INTO cfg_feature_alert (alert_id,DESCRIPTION,feature) VALUES('alert013','DB Issue <ERROR>','national_whitelist');
-INSERT IGNORE INTO cfg_feature_alert (alert_id,DESCRIPTION,feature) VALUES('alert016','Error in national_whitelist <ERROR>','national_whitelist');
+INSERT IGNORE INTO cfg_feature_alert (alert_id,DESCRIPTION,feature) VALUES('alert1209','DB connection failed while getting DB configuration value','national_whitelist');
+INSERT IGNORE INTO cfg_feature_alert (alert_id,DESCRIPTION,feature) VALUES('alert013','DB Issue <e>','national_whitelist');
+INSERT IGNORE INTO cfg_feature_alert (alert_id,DESCRIPTION,feature) VALUES('alert016','Error in national_whitelist <e>','national_whitelist');
 INSERT IGNORE INTO cfg_feature_alert (alert_id,DESCRIPTION,feature) VALUES('alert017',"In Post Amnesty period GDCE flag can't be off. Please check.",'national_whitelist');
 
 INSERT IGNORE INTO feature_rule(feature,grace_action,NAME,post_grace_action,rule_order,user_type,failed_rule_action_grace,failed_rule_action_post_grace,output,rule_message,modified_by) VALUES('national_whitelist','','CUSTOM_GDCE','',2,'default','','','','Rule message for CUSTOM_GDCE','system');
@@ -37,11 +29,11 @@ INSERT IGNORE INTO rule (DESCRIPTION,NAME,output,state,modified_by) VALUES('Desc
 INSERT IGNORE INTO rule (DESCRIPTION,NAME,output,state,modified_by) VALUES('Description for TYPE_APPROVED','TYPE_APPROVED','','Enabled','Admin');
 INSERT IGNORE INTO rule (DESCRIPTION,NAME,output,state,modified_by) VALUES('Description for VALID_TAC','VALID_TAC','','Enabled','Admin');
 
-INSERT IGNORE INTO app.sys_param (DESCRIPTION,tag,TYPE,VALUE,ACTIVE,feature_name,remark,user_type,modified_by) VALUES ('NWLOnlineAPICheck for source NWL','NWLOnlineAPICheck',0,'false',1,'NationalWhitelist','','','');
-INSERT IGNORE INTO app.sys_param (description,tag,type,value,active,feature_name,remark,user_type,modified_by) VALUES ('Date on which the Grace Period will end in CEIR System.','GRACE_PERIOD_END_DATE',1,'2024-09-01',0,'EDR','','system','system');
-INSERT IGNORE INTO app.sys_param (DESCRIPTION,tag,TYPE,VALUE,ACTIVE,feature_name,remark,user_type,modified_by) VALUES ('latest date when edr national whitelist process for unique imei ran','app_edr_nw_unique_imei_last_run_time',0,'',1,'NationalWhitelist_EDR','','system','system');
-INSERT IGNORE INTO app.sys_param (DESCRIPTION,tag,TYPE,VALUE,ACTIVE,feature_name,remark,user_type,modified_by) VALUES ('latest date when edr national whitelist process for imei with different msisdn ran','app_edr_nw_unique_imei_diff_msisdn_last_run_time',0,'',1,'NationalWhitelist_EDR','','system','system');
-INSERT IGNORE INTO app.sys_param (DESCRIPTION,tag,TYPE,VALUE,ACTIVE,feature_name,remark,user_type,modified_by) VALUES ('latest date when edr foreign whitelist process for imei with different msisdn ran','app_edr_nw_foreign_unique_imei_diff_msisdn_last_run_time',0,'',1,'NationalWhitelist_EDR','','system','system');
+INSERT IGNORE INTO sys_param (DESCRIPTION,tag,TYPE,VALUE,ACTIVE,feature_name,remark,user_type,modified_by) VALUES ('NWLOnlineAPICheck for source NWL','NWLOnlineAPICheck',0,'false',1,'NationalWhitelist','','','');
+INSERT IGNORE INTO sys_param (description,tag,type,value,active,feature_name,remark,user_type,modified_by) VALUES ('Date on which the Grace Period will end in CEIR System.','GRACE_PERIOD_END_DATE',1,'2024-09-01',0,'EDR','','system','system');
+INSERT IGNORE INTO sys_param (DESCRIPTION,tag,TYPE,VALUE,ACTIVE,feature_name,remark,user_type,modified_by) VALUES ('latest date when national whitelist process for unique imei ran','app_nw_unique_imei_last_run_time',0,'',1,'NationalWhitelist_CDR','','system','system');
+INSERT IGNORE INTO sys_param (DESCRIPTION,tag,TYPE,VALUE,ACTIVE,feature_name,remark,user_type,modified_by) VALUES ('latest date when foreign whitelist process for unique imei ran','app_nw_unique_foreign_imei_last_run_time',0,'',1,'NationalWhitelist_CDR','','system','system');
+INSERT IGNORE INTO sys_param (DESCRIPTION,tag,TYPE,VALUE,ACTIVE,feature_name,remark,user_type,modified_by) VALUES ('latest date when foreign whitelist process for imei with different msisdn ran','app_nw_foreign_unique_imei_diff_msisdn_last_run_time',0,'',1,'NationalWhitelist_CDR','','system','system');
 INSERT IGNORE INTO app.sys_param (DESCRIPTION,tag,TYPE,VALUE,ACTIVE,feature_name,remark,user_type,modified_by) VALUES ('latest date when edr national whitelist process for unique imei ran','app_edr_nw_unique_foreign_imei_last_run_time',0,'',1,'NationalWhitelist_EDR','','system','system');
 
 INSERT IGNORE INTO feature_rule(feature,grace_action,NAME,post_grace_action,rule_order,user_type,failed_rule_action_grace,failed_rule_action_post_grace,output,rule_message,modified_by) VALUES('foreign_whitelist','','CUSTOM_GDCE','',2,'default','','','','Rule message for CUSTOM_GDCE','system');
