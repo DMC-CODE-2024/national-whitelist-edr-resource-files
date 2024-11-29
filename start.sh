@@ -1,6 +1,7 @@
 #!/bin/bash
 
-module_name="national_whitelist_cdr"
+#set -x 
+module_name="national_whitelist_edr"
 main_module="national_whitelist" #keep it empty "" if there is no main module 
 log_level="INFO" # INFO, DEBUG, ERROR
 
@@ -38,9 +39,9 @@ else  ## No process running
 
   ## Starting the process
 
-  echo "Starting ${module_name} process..."
+  echo "Starting ${module_name} module..."
 
- java -Dlog4j.configurationFile=./log4j2.xml -Dlog.level=${log_level} -Dlog.path=${log_path} -Dmodule.name=${module_name} -Dspring.config.location=file:./application.properties,file:${commonConfigurationFile} -jar ${build} 1>/dev/null 2>${log_path}/${module_name}.error &
+  java -Dlog4j.configurationFile=./log4j2.xml -Dlog.level=${log_level} -Dlog.path=${log_path} -Dmodule.name=${module_name} -Dspring.config.location=file:./application.properties,file:${commonConfigurationFile} -jar ${build} 1>/dev/null 2>${log_path}/${module_name}.error &
 
   ## check if process started successfully or not
 

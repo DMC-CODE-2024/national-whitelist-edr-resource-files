@@ -3,13 +3,13 @@
 set -x
 source $commonConfigurationFilePath
 
-main_module="etl_cdr"
+main_module="etl_edr"
 module_name="etl_module"
 process_name="sql"
 
 divisor=500000 
 
-dbDecryptPassword=$(java -jar $pass_dypt spring.datasource.password)
+dbDecryptPassword=$(java -jar ${APP_HOME}/encryption_utility/PasswordDecryptor-0.1.jar spring.datasource.password)
 echo "Password is " ${dbDecryptPassword}
 
 TODAY=$(date +"%Y-%m-%d")
@@ -66,6 +66,7 @@ for opr in seatel metfone smart cellcard
       echo "No Process Run"
    else  
      echo "Completed"
+    ./start.sh
   fi  
  
 }
