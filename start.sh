@@ -10,6 +10,17 @@ log_level="INFO" # INFO, DEBUG, ERROR
 
 . ~/.bash_profile
 
+# Path to the check_p3.sh script
+check_p3_script_path="check_p3.sh"
+
+# Run the check_p3.sh script
+p3_status=$(bash "$check_p3_script_path")
+
+if [[ "$p3_status" != *"Completed"* ]]; then
+  echo "P3 process is still running. Exiting..."
+  exit 1
+fi
+
 build="${module_name}.jar"
 
 pid=`ps -ef | grep $build | grep java | grep $module_name | grep -v grep | awk '{print $2}'`
